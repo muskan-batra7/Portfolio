@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Muskan Batra — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F3EE;
+    --paper-2:#EFEAE2;
+    --ink:#221E1B;
+    --ink-soft:#726A62;
+    --rule:#DCD4C8;
+
+    --panel:#241E1A;
+    --panel-2:#2C241F;
+    --panel-line:#3B322B;
+    --panel-text:#EDE7DD;
+    --panel-text-soft:#9C9187;
+
+    --orange:#D97A2B;
+    --orange-soft:#F3DCC2;
+    --teal:#5FA98A;
+    --teal-soft:#DCEEE5;
+    --blue:#6C8FC7;
+    --blue-soft:#DEE6F3;
+
+    --radius:6px;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --sans:'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+    .panel-wrap{opacity:1 !important; transform:none !important;}
+  }
+
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+      radial-gradient(circle at 1px 1px, rgba(34,30,27,0.05) 1px, transparent 0);
+    background-size:180px 180px, 22px 22px;
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    font-size:16px;
+  }
+
+  a{color:var(--orange);}
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--orange); outline-offset:3px; }
+
+  /* scroll progress */
+  .progress{ position:fixed; top:0; left:0; height:3px; background:var(--orange); z-index:50; width:0%; transition:width 0.1s linear; }
+
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(246,243,238,0.94);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--rule);
+  }
+  .topbar-inner{
+    max-width:900px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand{ font-family:var(--mono); font-weight:800; font-size:15px; color:var(--ink); }
+  .brand .dot{ color:var(--orange); }
+  .nav{ display:flex; gap:20px; }
+  .nav a{ color:var(--ink-soft); text-decoration:none; font-size:13.5px; font-family:var(--mono); position:relative; padding-bottom:3px; transition:color 0.15s ease; }
+  .nav a::after{ content:''; position:absolute; left:0; bottom:0; width:0; height:2px; background:var(--orange); transition:width 0.2s ease; }
+  .nav a:hover{ color:var(--ink); }
+  .nav a:hover::after{ width:100%; }
+
+  .wrap{ max-width:900px; margin:0 auto; padding:48px 24px 120px; }
+
+  /* --- reveal --- */
+  .panel-wrap{
+    margin:0 0 40px;
+    opacity:0;
+    transition:opacity 0.6s ease, transform 0.6s ease;
+  }
+  .panel-wrap.from-left{ transform:translateX(-24px); }
+  .panel-wrap.from-right{ transform:translateX(24px); }
+  .panel-wrap.is-visible{ opacity:1; transform:translateX(0); }
+
+  /* --- editor panel chrome --- */
+  .panel{ border-radius:var(--radius); overflow:hidden; box-shadow:0 14px 34px rgba(34,30,27,0.14); }
+  .tabstrip{
+    background:var(--panel-2);
+    display:flex; align-items:center;
+    padding:0 6px;
+    border-bottom:1px solid var(--panel-line);
+  }
+  .tab{
+    font-family:var(--mono); font-size:12px; color:var(--panel-text-soft);
+    padding:11px 16px 9px; position:relative;
+  }
+  .tab.active{ color:var(--panel-text); }
+  .tab.active::after{ content:''; position:absolute; left:10px; right:10px; bottom:0; height:2px; background:var(--orange); }
+  .tab .ext{ color:var(--orange); }
+
+  .code-body{
+    background:var(--panel);
+    color:var(--panel-text);
+    padding:26px 28px 28px 0;
+    display:grid;
+    grid-template-columns:44px 1fr;
+    position:relative;
+  }
+  .code-body::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity:0.5;
+    pointer-events:none;
+  }
+  .code-body > *{ position:relative; z-index:1; }
+  .gutter{
+    color:var(--panel-line);
+    font-family:var(--mono); font-size:12px;
+    text-align:right; padding-right:14px; user-select:none;
+    border-right:1px solid var(--panel-line);
+  }
+  .gutter span{ display:block; line-height:1.9; }
+  .code-content{ padding-left:22px; padding-right:24px; }
+
+  /* on light-content sections we invert to a paper card instead of dark panel */
+  .panel.light .code-body{ background:var(--paper-2); color:var(--ink); }
+  .panel.light .gutter{ color:var(--rule); border-right-color:var(--rule); }
+  .panel.light .tabstrip{ background:#E7E0D3; border-bottom-color:var(--rule); }
+  .panel.light .tab{ color:var(--ink-soft); }
+  .panel.light .tab.active{ color:var(--ink); }
+
+  h1,h2,h3{ font-family:var(--sans); margin:0; letter-spacing:-0.01em; }
+
+  /* --- hero --- */
+  .hero-kw{ color:var(--blue); }
+  .hero-str{ color:var(--teal); }
+  .hero h1{ font-family:var(--mono); font-size:clamp(24px,4.6vw,34px); font-weight:700; color:var(--panel-text); line-height:1.35; }
+  .hero .role{ font-family:var(--mono); font-size:13.5px; color:var(--orange); margin-top:10px; }
+  .hero .role .cursor{ display:inline-block; width:7px; height:14px; background:var(--orange); margin-left:2px; vertical-align:-2px; animation:blink 1s step-end infinite; }
+  @keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+  .hero p{ max-width:58ch; color:var(--panel-text-soft); margin-top:16px; font-size:15px; font-family:var(--sans); }
+  .hero .ctas{ display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
+  .btn{ font-family:var(--mono); font-size:13px; padding:10px 18px; border-radius:4px; text-decoration:none; transition:transform 0.15s ease, background 0.15s ease; display:inline-block; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn.primary{ background:var(--orange); color:#241E1A; font-weight:700; }
+  .btn.primary:hover{ background:#E88A3E; }
+  .btn.ghost{ color:var(--panel-text); border:1px solid var(--panel-line); }
+  .btn.ghost:hover{ background:var(--panel-2); }
+
+  .section-label{ font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--orange); margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+  .section-label svg{ width:16px; height:16px; flex:none; }
+
+  .about-body p{ font-size:15.5px; max-width:64ch; }
+
+  /* --- skills --- */
+  .skill-groups{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:22px; }
+  .skill-group h3{ font-family:var(--mono); font-size:12px; color:var(--orange); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{ font-family:var(--mono); font-size:12.5px; padding:6px 11px; border-radius:4px; transition:transform 0.15s ease, box-shadow 0.15s ease; display:inline-block; }
+  .tag:hover{ transform:translateY(-3px); }
+  .tag.c-blue{ background:var(--blue-soft); color:#3A5padding; color:#354B78; }
+  .tag.c-teal{ background:var(--teal-soft); color:#2E6B50; }
+  .tag.c-orange{ background:var(--orange-soft); color:#9C4E12; }
+
+  /* --- projects --- */
+  .project{ background:var(--panel); border-radius:var(--radius); padding:24px 26px; margin-bottom:18px; border-left:3px solid var(--orange); transition:transform 0.2s ease, box-shadow 0.2s ease; }
+  .project:hover{ transform:translateY(-3px); box-shadow:0 14px 30px rgba(34,30,27,0.16); }
+  .project:last-child{ margin-bottom:0; }
+  .project-head{ display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+  .project h3{ font-size:16.5px; font-weight:600; color:var(--panel-text); font-family:var(--sans); }
+  .project .stamp{ font-family:var(--mono); font-size:11px; color:var(--panel-text-soft); }
+  .project .tech{ font-family:var(--mono); font-size:11.5px; color:var(--teal); margin-bottom:14px; }
+  .ptrl{ display:grid; gap:10px; }
+  .ptrl .row{ display:grid; grid-template-columns:98px 1fr; gap:12px; font-size:14px; }
+  .ptrl .k{ font-family:var(--mono); font-size:11px; color:var(--blue); text-transform:uppercase; letter-spacing:0.06em; padding-top:2px; }
+  .ptrl .v{ color:var(--panel-text-soft); }
+  @media(max-width:520px){ .ptrl .row{ grid-template-columns:1fr; } .ptrl .k{ padding-top:0; } }
+  .project-links{ margin-top:14px; }
+  .project-links a{ font-family:var(--mono); font-size:12px; text-decoration:none; color:var(--orange); border-bottom:1px solid transparent; transition:border-color 0.15s ease; }
+  .project-links a:hover{ border-color:var(--orange); }
+
+  /* --- education --- */
+  .edu-item{ display:flex; justify-content:space-between; gap:12px; padding:13px 0; border-bottom:1px solid var(--rule); flex-wrap:wrap; transition:padding-left 0.15s ease; }
+  .edu-item:hover{ padding-left:6px; }
+  .edu-item:last-child{ border-bottom:none; }
+  .edu-item .what{ font-weight:600; font-size:15px; }
+  .edu-item .where{ color:var(--ink-soft); font-size:13.5px; }
+  .edu-item .when{ font-family:var(--mono); font-size:12px; color:var(--orange); white-space:nowrap; }
+
+  /* --- certs / achievements --- */
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:30px; }
+  @media(max-width:600px){ .two-col{ grid-template-columns:1fr; } }
+  ul.plain{ list-style:none; margin:0; padding:0; }
+  ul.plain li{ font-size:14.5px; padding:10px 0 10px 20px; border-bottom:1px solid var(--rule); position:relative; transition:padding-left 0.15s ease, color 0.15s ease; }
+  ul.plain li:hover{ padding-left:26px; color:var(--orange); }
+  ul.plain li:last-child{ border-bottom:none; }
+  ul.plain li::before{ content:'\2192'; position:absolute; left:0; top:10px; color:var(--orange); font-weight:700; font-size:13px; }
+  ul.plain .meta{ display:block; font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-top:2px; }
+
+  /* --- contact --- */
+  .print-block{ font-family:var(--mono); font-size:14px; }
+  .print-block .line{ margin-bottom:8px; opacity:0; animation:typeIn 0.4s ease forwards; color:var(--panel-text); }
+  .print-block .line:nth-child(1){ animation-delay:0.1s; }
+  .print-block .line:nth-child(2){ animation-delay:0.3s; }
+  .print-block .line:nth-child(3){ animation-delay:0.5s; }
+  .print-block .line:nth-child(4){ animation-delay:0.7s; }
+  @keyframes typeIn{ from{ opacity:0; transform:translateX(-6px); } to{ opacity:1; transform:translateX(0); } }
+  .print-block .key{ color:var(--blue); }
+  .print-block a{ color:var(--teal); text-decoration:underline; }
+
+  footer{ text-align:center; font-family:var(--mono); font-size:11.5px; color:var(--ink-soft); margin-top:56px; }
+  footer .dot{ color:var(--orange); }
+  /* --- github stats --- */
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:22px; }
+  .stat-box{ background:var(--panel); border-radius:var(--radius); padding:18px 16px; text-align:center; border-top:3px solid var(--orange); }
+  .stat-box .num{ font-family:var(--mono); font-size:26px; font-weight:700; color:var(--orange); }
+  .stat-box .lbl{ font-family:var(--sans); font-size:11.5px; color:var(--panel-text-soft); margin-top:4px; text-transform:uppercase; letter-spacing:0.06em; }
+  .repo-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:12px 16px; background:var(--panel-2); border-radius:var(--radius); margin-bottom:10px; }
+  .repo-row:last-child{ margin-bottom:0; }
+  .repo-row .name{ font-family:var(--mono); font-size:13px; color:var(--panel-text); }
+  .repo-row .meta{ font-family:var(--sans); font-size:12px; color:var(--panel-text-soft); }
+  .repo-row .lang{ font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:3px; background:var(--teal-soft); color:#2E6B50; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progressBar"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">muskan<span class="dot">.</span>portfolio</div>
+    <nav class="nav">
+      <a href="#about">about</a>
+      <a href="#skills">skills</a>
+      <a href="#learning">learning</a>
+      <a href="#projects">projects</a>
+      <a href="#stats">github</a>
+      <a href="#education">education</a>
+      <a href="#certs">certificates</a>
+      <a href="#contact">contact</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="panel-wrap from-left" id="home">
+    <div class="panel">
+      <div class="tabstrip"><div class="tab active">home<span class="ext">.py</span></div></div>
+      <div class="code-body hero">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+        <div class="code-content" style="display:flex; gap:26px; align-items:center; flex-wrap:wrap;">
+          <div style="flex:1 1 320px; min-width:0;">
+            <div style="font-family:var(--mono); font-size:12.5px; color:var(--panel-text-soft); margin-bottom:10px;"><span class="hero-kw">const</span> student = <span class="hero-str">"Muskan Batra"</span>;</div>
+            <h1>Hi, I'm Muskan Batra</h1>
+            <div class="role">B.Tech CSE (AI &amp; ML) Student &middot; Python &amp; AI/ML Learner &middot; Aspiring AI/ML Engineer<span class="cursor"></span></div>
+            <p>A second-year Computer Science (AI &amp; ML) undergraduate at Lovely Professional University, cultivating a disciplined foundation in Python, data science, and applied artificial intelligence — one deliberate project, one consistent commit at a time.</p>
+            <div class="ctas">
+              <a class="btn primary" href="#projects">View My Projects</a>
+              <a class="btn ghost" href="Muskan_Batra_Resume_Final2026.pdf" download>Download Resume</a>
+            </div>
+          </div>
+          <div style="flex:0 0 auto;">
+            <svg viewBox="0 0 140 140" width="130" height="130" fill="none">
+              <circle cx="70" cy="70" r="64" fill="none" stroke="var(--panel-line)" stroke-width="1.5" stroke-dasharray="3 5"/>
+              <circle cx="70" cy="70" r="46" fill="var(--panel-2)" stroke="var(--orange)" stroke-width="2"/>
+              <path d="M50 78 Q45 55 65 50 Q85 45 90 65 Q92 80 78 86" stroke="var(--teal)" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <circle cx="70" cy="70" r="5" fill="var(--orange)"/>
+              <circle cx="52" cy="60" r="3" fill="var(--blue)"/>
+              <circle cx="88" cy="62" r="3" fill="var(--blue)"/>
+              <circle cx="60" cy="88" r="3" fill="var(--blue)"/>
+              <circle cx="82" cy="86" r="3" fill="var(--blue)"/>
+              <line x1="70" y1="70" x2="52" y2="60" stroke="var(--blue)" stroke-width="1.4"/>
+              <line x1="70" y1="70" x2="88" y2="62" stroke="var(--blue)" stroke-width="1.4"/>
+              <line x1="70" y1="70" x2="60" y2="88" stroke="var(--blue)" stroke-width="1.4"/>
+              <line x1="70" y1="70" x2="82" y2="86" stroke="var(--blue)" stroke-width="1.4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="panel-wrap from-right" id="about">
+    <div class="panel light">
+      <div class="tabstrip"><div class="tab active">about<span class="ext">.md</span></div></div>
+      <div class="code-body">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+        <div class="code-content about-body">
+          <div class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z"/></svg>
+            About Me
+          </div>
+          <p>Ever since class 11th, I've been drawn toward a singular pursuit: teaching machines to think. What began as curiosity about artificial intelligence soon hardened into conviction — I chose Computer Science with a specialization in AI &amp; ML for my B.Tech, and never looked back. Once I arrived at college, I refused to wait for coursework to hand me a starting point. I took my holidays into my own hands, began learning independently, and started committing every line of code to GitHub — transforming that early spark into a lasting discipline.</p>
+          <p style="margin-top:14px;">That self-driven rigor evolved into a structured 50-day roadmap spanning Python foundations, NumPy, Pandas, and the fundamentals of machine learning, sustained by daily problem-solving practice. I've since ventured beyond the syllabus too — engineering an IoT-based electricity theft detection system, and designing a hands-on Python curriculum for local students in Sunam. My ambition is to grow into a proficient AI/ML engineer, and every project I undertake is a deliberate step toward proving that early curiosity was worth chasing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="panel-wrap from-left" id="skills">
+    <div class="panel light">
+      <div class="tabstrip"><div class="tab active">skills<span class="ext">.json</span></div></div>
+      <div class="code-body">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+        <div class="code-content">
+          <div class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M9 4 3 12l6 8M15 4l6 8-6 8"/></svg>
+            Skills
+          </div>
+          <div class="skill-groups">
+            <div class="skill-group">
+              <h3>Programming</h3>
+              <div class="tag-row"><span class="tag c-blue">C</span><span class="tag c-blue">C++</span><span class="tag c-blue">Python</span></div>
+            </div>
+            <div class="skill-group">
+              <h3>Web</h3>
+              <div class="tag-row"><span class="tag c-blue">HTML</span><span class="tag c-blue">CSS</span></div>
+            </div>
+            <div class="skill-group">
+              <h3>Data &amp; AI</h3>
+              <div class="tag-row"><span class="tag c-teal">NumPy</span><span class="tag c-teal">Pandas</span></div>
+            </div>
+            <div class="skill-group">
+              <h3>Database</h3>
+              <div class="tag-row"><span class="tag c-teal">MySQL</span></div>
+            </div>
+            <div class="skill-group">
+              <h3>Tools</h3>
+              <div class="tag-row"><span class="tag c-blue">Git</span><span class="tag c-blue">GitHub</span><span class="tag c-blue">VS Code</span><span class="tag c-blue">Jupyter</span><span class="tag c-blue">Proteus</span></div>
+            </div>
+            <div class="skill-group">
+              <h3>Soft Skills</h3>
+              <div class="tag-row"><span class="tag c-orange">Problem Solving</span><span class="tag c-orange">Team Collaboration</span><span class="tag c-orange">Time Management</span><span class="tag c-orange">Adaptability</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CURRENTLY LEARNING -->
+  <section class="panel-wrap from-right" id="learning">
+    <div class="panel light">
+      <div class="tabstrip"><div class="tab active">learning<span class="ext">.json</span></div></div>
+      <div class="code-body">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span><span>4</span></div>
+        <div class="code-content">
+          <div class="two-col">
+            <div>
+              <div class="section-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+                Currently Learning
+              </div>
+              <div class="tag-row">
+                <span class="tag c-teal">Advanced Pandas</span>
+                <span class="tag c-teal">apply() &amp; map()</span>
+                <span class="tag c-teal">Regex Fundamentals</span>
+                <span class="tag c-teal">Web Scraping</span>
+                <span class="tag c-teal">ML Fundamentals</span>
+              </div>
+            </div>
+            <div>
+              <div class="section-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M5 3l14 9-14 9V3Z"/></svg>
+                What's Next
+              </div>
+              <div class="tag-row">
+                <span class="tag c-orange">Deep Learning</span>
+                <span class="tag c-orange">TensorFlow / PyTorch</span>
+                <span class="tag c-orange">Real-World ML Projects</span>
+                <span class="tag c-orange">Advanced DSA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="panel-wrap from-right" id="projects">
+    <div class="panel">
+      <div class="tabstrip"><div class="tab active">projects<span class="ext">.md</span></div></div>
+      <div class="code-body" style="grid-template-columns:44px 1fr; padding-bottom:24px;">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span></div>
+        <div class="code-content">
+          <div class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
+            Projects
+          </div>
+
+          <div class="project">
+            <div class="project-head">
+              <h3>IoT-Based Smart Electricity Theft Detection</h3>
+              <span class="stamp">Dec 2025 – Jan 2026</span>
+            </div>
+            <div class="tech">ESP32 &middot; ACS712 &middot; ZMPT101B &middot; ThingSpeak &middot; Telegram Bot API &middot; Proteus</div>
+            <div class="ptrl">
+              <div class="row"><span class="k">Problem</span><span class="v">Electricity theft eludes manual detection and inflicts tangible financial losses upon providers.</span></div>
+              <div class="row"><span class="k">Technology</span><span class="v">An ESP32 microcontroller paired with ACS712 current and ZMPT101B voltage sensors, ThingSpeak for continuous data logging, and a Telegram bot for instantaneous alerts.</span></div>
+              <div class="row"><span class="k">Result</span><span class="v">Engineered and simulated a real-time monitoring system that logs consumption live and flags theft instantly; validated in Proteus, documented in a comprehensive technical report, and presented for End Term Evaluation.</span></div>
+              <div class="row"><span class="k">Learning</span><span class="v">Gained hands-on fluency in sensor integration, IoT data pipelines, and circuit simulation ahead of physical implementation.</span></div>
+            </div>
+          </div>
+
+          <div class="project">
+            <div class="project-head">
+              <h3>Python for AI/ML — Self-Study Portfolio</h3>
+              <span class="stamp">Jun 2026 – Present</span>
+            </div>
+            <div class="tech">Python &middot; NumPy &middot; Pandas &middot; Jupyter Notebook &middot; Git/GitHub</div>
+            <div class="ptrl">
+              <div class="row"><span class="k">Problem</span><span class="v">Structured, hands-on practice was needed to translate classroom theory into genuine Python and data-science competence.</span></div>
+              <div class="row"><span class="k">Technology</span><span class="v">A self-designed 50-day roadmap spanning Python foundations, NumPy, Pandas, and the essentials of machine learning.</span></div>
+              <div class="row"><span class="k">Result</span><span class="v">Sustained two GitHub repositories with daily commits — <code>python-foundations</code> and <code>data-science-basics</code> — and independently solved 20+ LeetCode problems, including Pandas-specific challenges.</span></div>
+              <div class="row"><span class="k">Learning</span><span class="v">Cultivated consistency and independence in problem-solving, alongside genuine fluency working within Jupyter notebooks.</span></div>
+            </div>
+            <div class="project-links">
+              <a href="https://github.com/muskan-batra7" target="_blank" rel="noopener">github.com/muskan-batra7 &rarr;</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GITHUB STATS -->
+  <section class="panel-wrap from-left" id="stats">
+    <div class="panel">
+      <div class="tabstrip"><div class="tab active">github-stats<span class="ext">.sh</span></div></div>
+      <div class="code-body">
+        <div class="gutter"><span>1</span><span>2</span></div>
+        <div class="code-content">
+          <div class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M12 2 3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5Z"/><path d="M9 12l2 2 4-4"/></svg>
+            GitHub Stats
+          </div>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="num">2</div><div class="lbl">Public Repos</div></div>
+            <div class="stat-box"><div class="num">64</div><div class="lbl">Total Commits</div></div>
+            <div class="stat-box"><div class="num">25/50</div><div class="lbl">Days Logged</div></div>
+          </div>
+          <div class="repo-row">
+            <div>
+              <div class="name">python-foundations</div>
+              <div class="meta">Phase 1 complete — 16/16 days</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="lang">Python</span>
+              <span class="meta">27 commits</span>
+            </div>
+          </div>
+          <div class="repo-row">
+            <div>
+              <div class="name">data-science-basics</div>
+              <div class="meta">Phase 2 in progress — through Day 25</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="lang">Jupyter Notebook</span>
+              <span class="meta">37 commits</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section class="panel-wrap from-left" id="education">
+    <div class="panel light">
+      <div class="tabstrip"><div class="tab active">education<span class="ext">.yaml</span></div></div>
+      <div class="code-body">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span></div>
+        <div class="code-content">
+          <div class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M2 8 12 3l10 5-10 5L2 8Z"/><path d="M6 10.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-5.5"/></svg>
+            Education
+          </div>
+          <div class="edu-item">
+            <div>
+              <div class="what">B.Tech – Computer Science &amp; Engineering (AI &amp; ML)</div>
+              <div class="where">Lovely Professional University, Phagwara, Punjab &middot; CGPA: 9.22</div>
+            </div>
+            <div class="when">Aug 2025 – Present</div>
+          </div>
+          <div class="edu-item">
+            <div>
+              <div class="what">Higher Secondary Education</div>
+              <div class="where">Sant Attar Singh International School, Sangrur, Punjab &middot; 80%</div>
+            </div>
+            <div class="when">May 2023 – Mar 2025</div>
+          </div>
+          <div class="edu-item">
+            <div>
+              <div class="what">Secondary Education</div>
+              <div class="where">Little Flower Convent School, Sangrur, Punjab &middot; 95.6%</div>
+            </div>
+            <div class="when">Jun 2023 – Mar 2025</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CERTS + ACHIEVEMENTS -->
+  <section class="panel-wrap from-right" id="certs">
+    <div class="panel light">
+      <div class="tabstrip"><div class="tab active">certificates<span class="ext">.md</span></div></div>
+      <div class="code-body">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span><span>4</span></div>
+        <div class="code-content">
+          <div class="two-col">
+            <div>
+              <div class="section-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5"/></svg>
+                Certificates
+              </div>
+              <ul class="plain">
+                <li>Python Course for Beginners <span class="meta">Scalar &middot; Dec 2025</span></li>
+                <li>Full C Programming Course <span class="meta">Neocolab</span></li>
+                <li>Database Management Systems <span class="meta">Codetantra</span></li>
+                <li>A1 Level German Language Course <span class="meta">LPU &middot; Aug 2026</span></li>
+                <li>The Primer – Design Thinking <span class="meta">NPTEL &middot; Sep 2026</span></li>
+                <li>Introduction to Artificial Intelligence <span class="meta">Infosys Springboard</span></li>
+              </ul>
+            </div>
+            <div>
+              <div class="section-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4a2 2 0 0 0 2 4M17 6h3a2 2 0 0 1-2 4"/></svg>
+                Achievements
+              </div>
+              <ul class="plain">
+                <li>CGPA 9.22 <span class="meta">Year 1, LPU</span></li>
+                <li>O Grade in Mathematics <span class="meta">Semester 1 &amp; Semester 2</span></li>
+                <li>O Grade in C Programming</li>
+                <li>20+ LeetCode problems solved independently <span class="meta">self-driven 50-day plan</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="panel-wrap from-left" id="contact">
+    <div class="panel">
+      <div class="tabstrip"><div class="tab active">contact<span class="ext">.sh</span></div></div>
+      <div class="code-body">
+        <div class="gutter"><span>1</span><span>2</span><span>3</span><span>4</span></div>
+        <div class="code-content print-block">
+          <div class="section-label" style="margin-bottom:16px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            Get In Touch
+          </div>
+          <div class="line"><span class="key">github</span>&nbsp;&nbsp;→ <a href="https://github.com/muskan-batra7" target="_blank" rel="noopener">github.com/muskan-batra7</a></div>
+          <div class="line"><span class="key">linkedin</span>→ <a href="https://www.linkedin.com/in/muskan-batra7/" target="_blank" rel="noopener">linkedin.com/in/muskan-batra7</a></div>
+          <div class="line"><span class="key">email</span>&nbsp;&nbsp;&nbsp;→ <a href="mailto:muskan20071676@gmail.com">muskan20071676@gmail.com</a></div>
+          <div class="line"><span class="key">resume</span>&nbsp;→ <a href="Muskan_Batra_Resume_Final2026.pdf" download>download PDF</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Built &amp; maintained by Muskan Batra<span class="dot"> &middot; </span>2026</footer>
+</div>
+
+<script>
+  var panels = document.querySelectorAll('.panel-wrap');
+  if('IntersectionObserver' in window){
+    var seen = new WeakSet();
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting && !seen.has(entry.target)){
+          seen.add(entry.target);
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.12});
+    panels.forEach(function(p){ observer.observe(p); });
+  } else {
+    panels.forEach(function(p){ p.classList.add('is-visible'); });
+  }
+
+  var bar = document.getElementById('progressBar');
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    bar.style.width = scrolled + '%';
+  });
+</script>
+
+</body>
+</html>
